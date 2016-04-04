@@ -220,6 +220,12 @@ public class NumberController : MonoBehaviour {
 			}
 		}
 
+		//GameObject.Find("btn" + numstr).GetComponent<Button>().interactable = false;
+		if (unlock > 0)
+			GameObject.Find("txtFound2").GetComponent<Text>().text = GameObject.Find("txtFound1").GetComponent<Text>().text;
+
+		GameObject.Find("txtFound1").GetComponent<Text>().text = sameNumber.ToString() + "\n" + samePlace.ToString();
+
 		Debug.Log("Numbers in the same place: " + samePlace);
 		Debug.Log("Numbers in the wrong place: " + sameNumber);
 	}
