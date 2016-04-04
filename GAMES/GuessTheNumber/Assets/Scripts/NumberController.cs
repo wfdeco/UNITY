@@ -5,6 +5,7 @@ using System.Collections;
 public class NumberController : MonoBehaviour {
 
 	int num;
+	int unlock;
 
 	int[] key = new int[4];
 	int[] guess = new int[4];
@@ -23,6 +24,8 @@ public class NumberController : MonoBehaviour {
 		for (int i = 0; i < 4; i++) {
 			Debug.Log(key[i]);
 		}
+
+		unlock = 0;
 	}
 
 	private void KeyGenerator() {
@@ -47,13 +50,23 @@ public class NumberController : MonoBehaviour {
 		}
 	}
 
+	public void FreeDisabledButton() {
+
+		for (int i = 0; i < 10; i++)
+			GameObject.Find("btn" + i.ToString()).GetComponent<Button>().interactable = true;
+	}
+
 	public void NumberPressed(string numstr) {
 
-		// COPY THE PRESSED NUMBERS TO GUESS ARRAY
 		num = int.Parse(numstr);
+
+		// DISABLE PRESSED NUMBER
+		GameObject.Find("btn" + numstr).GetComponent<Button>().interactable = false;
+
+		// COPY THE PRESSED NUMBERS TO GUESS ARRAY
 		GuessCode();
 	}
-		
+	
 	public void GuessCode() {
 
 		if (!isFull0) {
@@ -117,16 +130,51 @@ public class NumberController : MonoBehaviour {
 
 	public void UnlockTry() {
 
+		FreeDisabledButton();
+		CopyTry();
 		LastTry();
 		DidIWon();
 		ChosenOnes();
 
-		isFull0 = isFull1 = isFull2 = isFull3 = false;
+		for (int i = 0; i < 4; i++) {
+			EraseChoice();
+		}
+
+		if (unlock < 19)
+			unlock++;
+	}
+
+	private void CopyTry() {
+
+		string objCurrentCopy = "";
+		string objDestinationCopy = "";
+		string textCopy = "";
+		Text currentCopy;
+		Text destinationCopy;
+
+		for (int i = unlock; i > 0; i--) {
+			if (i < 9) {
+				objCurrentCopy = "txtPastCode0" + i.ToString();
+				objDestinationCopy = "txtPastCode0" + (i + 1).ToString();
+			} else if (i == 9) {
+				objCurrentCopy = "txtPastCode0" + i.ToString();
+				objDestinationCopy = "txtPastCode" + (i + 1).ToString();
+			} else {
+				objCurrentCopy = "txtPastCode" + i.ToString();
+				objDestinationCopy = "txtPastCode" + (i + 1).ToString();
+			}
+
+			currentCopy = GameObject.Find(objCurrentCopy).GetComponent<Text>(); // INSTANTIATE THE GAMEOBJECT TO A VARIABLE
+			textCopy = currentCopy.text; // COPY THE GAMEOBJECT TEXT ATRIBUTE TO A VARIABLE
+
+			destinationCopy = GameObject.Find(objDestinationCopy).GetComponent<Text>();
+			destinationCopy.text = textCopy;
+		}
 	}
 
 	public void LastTry() {
 
-		cryptoNum = GameObject.Find("txtLastTry").GetComponent<Text>();
+		cryptoNum = GameObject.Find("txtPastCode01").GetComponent<Text>();
 
 		string lastTry = "";
 		for (int i = 0; i < 4; i++) {
@@ -162,21 +210,13 @@ public class NumberController : MonoBehaviour {
 
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
-				//if (guess[j] == -1)
-				//	continue;
 				if (guess[i] == key[j]) {
 					if (i == j)
 						samePlace++;
 					else
 						sameNumber++;
+					break;
 				}
-			}
-		}
-
-		for (int i = 0; i < 4-1; i++) {
-			for (int j = ++i; j < 4; j++) {
-				if (guess[i] == guess[j])
-					sameNumber--;
 			}
 		}
 
